@@ -1,5 +1,15 @@
 #include <gtest/gtest.h>
 
+#include <array>
+#include <vector>
+#include <deque>
+#include <forward_list>
+#include <list>
+#include <stack>
+#include <queue>
+#include <set>
+#include <map>
+
 #include <seqan3/alphabet/cigar/cigar.hpp>
 #include <seqan3/io/sam_file/sam_flag.hpp>
 
@@ -94,4 +104,102 @@ TEST(junction_detection, split_read_method_simple)
 
 //     std::vector<Junction> expected_junctions{};
 //     EXPECT_EQ(expected_junctions, resulting_junctions);
+// }
+
+/* ---- Tests of single functions: ---- */
+
+/* analyze_sa_tag_method.cpp/hpp */
+
+TEST(junction_detection, split_string)
+{
+    std::vector<std::string> test_strings{"a,a,a,aa", "b;  b;b;  bbb", "c c cccc"};
+
+    // Container std::vector
+    {
+        {
+            std::vector<std::string> resulting_strings{};
+            split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+            std::vector<std::string> expected{"a", "a", "a", "aa"};
+            EXPECT_EQ(expected, resulting_strings);
+        }
+        {
+            std::vector<std::string> resulting_strings{};
+            split_string(test_strings[1], resulting_strings, ';');      // split "b;  b;b;  bbb" with ';'
+            std::vector<std::string> expected{ "b", "  b", "b", "  bbb" };
+            EXPECT_EQ(expected, resulting_strings);
+        }
+        {
+            std::vector<std::string> resulting_strings1{};
+            split_string(test_strings[2], resulting_strings1, ' ');     // split "c c cccc"     with ' '
+            std::vector<std::string> expected{"c", "c", "cccc"};
+            EXPECT_EQ(expected, resulting_strings1);
+
+            std::vector<std::string> resulting_strings2{};
+            split_string(test_strings[2], resulting_strings2);          // split "c c cccc"     with default ' '
+            EXPECT_EQ(resulting_strings1, resulting_strings2);
+        }
+    }
+    // Other containers ..., std::list, std::stack, std::set, ...
+    {
+        // {
+        //     std::array<std::string, 4> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::array<std::string, 4> expected{"a", "a", "a", "aa"};
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+        // {
+        //     std::deque<std::string> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::deque<std::string> expected{"a", "a", "a", "aa"};
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+        // {
+        //     std::list<std::string> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::list<std::string> expected{"a", "a", "a", "aa"};
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+        // {
+        //     std::stack<std::string> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::stack<std::string> expected;
+        //     expected.push("a");
+        //     expected.push("a");
+        //     expected.push("a");
+        //     expected.push("aa");
+        //     // std::stack<std::string> expected{"a", "a", "a", "aa"};
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+        // {
+        //     std::queue<std::string> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::queue<std::string> expected{};
+        //     expected.push("a");
+        //     expected.push("a");
+        //     expected.push("a");
+        //     expected.push("aa");
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+        // {
+        //     std::set<std::string> resulting_strings{};
+        //     split_string(test_strings[0], resulting_strings, ',');      // split "a,a,a,aa"     with ','
+        //     std::set<std::string> expected{"a", "a", "a", "aa"};
+        //     EXPECT_EQ(expected, resulting_strings);
+        // }
+    }
+}
+
+// TEST(junction_detection, retrieve_aligned_segments)
+// {
+
+// }
+
+// TEST(junction_detection, analyze_aligned_segments)
+// {
+
+// }
+
+// TEST(junction_detection, analyze_cigar)
+// {
+
 // }
