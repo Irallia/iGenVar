@@ -13,7 +13,7 @@ rule plot_pr_all_results:
 
 rule plot_pr_tools:
     input:
-        "pipeline/eval/{aligner}/all_results.txt"
+        "pipeline/eval/{aligner}/full_results.txt"
     output:
         "pipeline/eval/{aligner}/results.{aligner}.tools.{vcf}.png"
     threads: 1

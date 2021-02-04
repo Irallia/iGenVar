@@ -1,4 +1,4 @@
-localrules: bgzip, tabix, callset_eval_svim, callset_eval_svim_gtcomp, callset_eval, callset_eval_gtcomp, reformat_truvari_results, reformat_truvari_results_svim, cat_truvari_results, cat_truvari_results_svim_parameters
+localrules: bgzip, tabix, callset_eval_svim, callset_eval_svim_gtcomp, callset_eval, callset_eval_gtcomp, reformat_truvari_results, reformat_truvari_results_svim, cat_truvari_results_all, cat_truvari_results_full, cat_truvari_results_svim_parameters
 
 def get_vcf(wildcards):
     return config["truth"][wildcards.vcf]
@@ -67,7 +67,7 @@ rule callset_eval:
         calls = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz",
         index = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz.tbi"
     output:
-        "pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}/summary.txt"
+        summary="pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}/summary.txt"
     params:
         out_dir="pipeline/{caller}_results/{aligner}/{data}/{minscore}/{vcf}"
     threads: 1
@@ -86,7 +86,7 @@ rule callset_eval_gtcomp:
         calls = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz",
         index = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz.tbi"
     output:
-        "pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}.gt/summary.txt"
+        summary="pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}.gt/summary.txt"
     params:
         out_dir="pipeline/{caller}_results/{aligner}/{data}/{minscore}/{vcf}.gt"
     threads: 1
@@ -116,7 +116,7 @@ rule reformat_truvari_results_svim:
         "cat {input} | grep 'precision\|recall' | tr -d ',' |sed 's/^[ \t]*//' | tr -d '\"' | tr -d ' ' | tr ':' '\t' | awk 'OFS=\"\\t\" {{ print \"SVIM\", \"{wildcards.aligner}\", \"{wildcards.data}\", \"{wildcards.vcf}\", {wildcards.minscore}, $1, $2 }}' > {output}"
 
 
-rule cat_truvari_results:
+rule cat_truvari_results_all:
     input:
         svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/1000_900_0.3/{minscore}/{vcf}/pr_rec.txt", 
                           data = SUBSAMPLES, 
@@ -130,10 +130,32 @@ rule cat_truvari_results:
                           minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])), 
                           vcf=VCFS)
     output:
-        svim = temp("pipeline/eval/{aligner}/svim.results.txt"),
-        sniffles = temp("pipeline/eval/{aligner}/sniffles.results.txt"),
-        pbsv = temp("pipeline/eval/{aligner}/pbsv.results.txt"),
+        svim = temp("pipeline/eval/{aligner}/svim.all_results.txt"),
+        sniffles = temp("pipeline/eval/{aligner}/sniffles.all_results.txt"),
+        pbsv = temp("pipeline/eval/{aligner}/pbsv.all_results.txt"),
         all = "pipeline/eval/{aligner}/all_results.txt"
+    threads: 1
+    run:
+        shell("cat {input.svim} > {output.svim}")
+        shell("cat {input.sniffles} > {output.sniffles}")
+        shell("cat {input.pbsv} > {output.pbsv}")
+        shell("cat {output.svim} {output.sniffles} {output.pbsv} > {output.all}")
+
+rule cat_truvari_results_full:
+    input:
+        svim = expand("pipeline/SVIM_results/{{aligner}}/pooled/1000_900_0.3/{minscore}/{vcf}/pr_rec.txt", 
+                          minscore=[0] + list(range(1, 60, 2)), vcf=VCFS),
+        sniffles = expand("pipeline/Sniffles_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt", 
+                          minscore=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])),
+                          vcf=VCFS),
+        pbsv = expand("pipeline/pbsv_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt", 
+                          minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])), 
+                          vcf=VCFS)
+    output:
+        svim = temp("pipeline/eval/{aligner}/svim.full_results.txt"),
+        sniffles = temp("pipeline/eval/{aligner}/sniffles.full_results.txt"),
+        pbsv = temp("pipeline/eval/{aligner}/pbsv.full_results.txt"),
+        all = "pipeline/eval/{aligner}/full_results.txt"
     threads: 1
     run:
         shell("cat {input.svim} > {output.svim}")
