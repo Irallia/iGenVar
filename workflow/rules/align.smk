@@ -1,4 +1,4 @@
-localrules: pbmm_index, index_alignment, alignment_stats, pool_samples
+localrules: pbmm_index, index_alignment, lra_index, add_rg_to_lra_alignment, alignment_stats, pool_samples
 
 def get_samples(wildcards):
     return config["samples"][wildcards.sample]
@@ -42,7 +42,7 @@ rule pbmm_index:
     input:
         genome = config["reference"]
     output:
-        index = config["reference"] + ".mmi"
+        index = config["reference"] + ".pbmm2i"
     params:
         preset = config["parameters"]["pbmm_preset"]
     resources:
@@ -57,7 +57,7 @@ rule pbmm_index:
 rule run_alignments_pbmm2:
     input:
         fq = get_samples,
-        index = config["reference"] + ".mmi"
+        index = ancient(config["reference"] + ".pbmm2i")
     output:
         bam = temp("pipeline/alignments/{sample}.pbmm2.bam")
     threads: 10
@@ -77,6 +77,55 @@ rule run_alignments_pbmm2:
         {input.index} {input.fq} {output.bam}
         """
 
+rule lra_index:
+    input:
+        genome = config["reference"]
+    output:
+        mmi_index = config["reference"] + ".mmi",
+        gli_index = config["reference"] + ".gli"
+    params:
+        preset = config["parameters"]["lra_preset"]
+    resources:
+        io_gb = 100
+    threads: 1
+    conda:
+        "../envs/lra.yaml"
+    shell:
+        "lra index {params.preset} \
+        {input.genome}"
+
+rule run_alignments_lra:
+    input:
+        fa = get_samples,
+        genome = config["reference"],
+        mmi_index = ancient(config["reference"] + ".mmi"),
+        gli_index = ancient(config["reference"] + ".gli")
+    output:
+        bam = temp("pipeline/alignments/{sample}.lra.norg.bam")
+    threads: 12
+    resources:
+        mem_mb = 50000,
+        time_min = 1500,
+        io_gb = 100
+    params:
+        preset = config["parameters"]["lra_preset"]
+    conda:
+        "../envs/lra.yaml"
+    shell:
+        "lra align {params.preset} -p s -t 10 {input.genome} {input.fa} | \
+        samtools sort -o {output.bam} -"
+
+rule add_rg_to_lra_alignment:
+    input:
+        bam = "pipeline/alignments/{sample}.lra.norg.bam"
+    output:
+        bam = "pipeline/alignments/{sample}.lra.bam"
+    resources:
+        io_gb = 100
+    threads: 1
+    shell:
+        "samtools addreplacerg -r '@RG\tID:{wildcards.sample}\tSM:{wildcards.sample}' -o {output.bam} {input.bam}"
+
 rule run_alignments_ngmlr:
     input:
         fq = get_samples,
@@ -93,7 +142,7 @@ rule run_alignments_ngmlr:
     conda:
         "../envs/ngmlr.yaml"
     shell:
-        "zcat {input.fq} | \
+        "cat {input.fq} | \
          ngmlr --presets {params.preset} -t {threads} -r {input.genome} | \
          samtools sort -@ {threads} -o {output} -"
 
@@ -133,7 +182,7 @@ rule pool_samples:
     conda:
         "../envs/samtools.yaml"
     shell:
-        "samtools merge -r {output} {input}"
+        "samtools merge {output} {input}"
 
 rule subsample_alignments_0:
     input:

@@ -77,13 +77,13 @@ rule fix_sniffles:
         "sed 's/##INFO=<ID=SUPTYPE,Number=A/##INFO=<ID=SUPTYPE,Number=./' {input} > {output}"
 
 #PBSV
-rule run_pbsv:
+rule run_pbsv_pbmm2_or_lra:
     input:
-        bam = "pipeline/alignment_pooled/{data}.pbmm2.bam",
-        bai = "pipeline/alignment_pooled/{data}.pbmm2.bam.bai",
+        bam = "pipeline/alignment_pooled/{data}.{aligner}.bam",
+        bai = "pipeline/alignment_pooled/{data}.{aligner}.bam.bai",
         genome = config["reference"],
     output:
-        expand("pipeline/pbsv/{{aligner}}/{{data}}/min_{minsupport}.vcf",
+        expand("pipeline/pbsv/{{aligner,pbmm2|lra}}/{{data}}/min_{minsupport}.vcf",
                 minsupport=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])))
     resources:
         mem_mb = 400000,
@@ -101,6 +101,32 @@ rule run_pbsv:
         "../envs/pbsv.yaml"
     shell:
         "bash workflow/scripts/run_pbsv.sh {input.bam} {input.bai} {input.genome} {params.pbsv_from} {params.pbsv_to} {params.pbsv_step} {params.min_sv_size} {threads} {params.outdir}"
+
+rule run_pbsv_minimap2_or_ngmlr:
+    input:
+        bam = "pipeline/alignment_pooled/{data}.pbmm2.bam",
+        bai = "pipeline/alignment_pooled/{data}.pbmm2.bam.bai",
+        genome = config["reference"],
+    output:
+        expand("pipeline/pbsv/{{aligner,minimap2|ngmlr}}/{{data}}/min_{minsupport}.vcf",
+                minsupport=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])))
+    resources:
+        mem_mb = 400000,
+        time_min = 2000,
+        io_gb = 100
+    params:
+        min_sv_size = config["parameters"]["min_sv_size"],
+        tmpdir = "1000",
+        pbsv_from = config["minimums"]["pbsv_from"],
+        pbsv_to = config["minimums"]["pbsv_to"],
+        pbsv_step = config["minimums"]["pbsv_step"],
+        outdir = "pipeline/pbsv/{aligner}/{data}/"
+    threads: 15
+    conda:
+        "../envs/pbsv.yaml"
+    shell:
+        "bash workflow/scripts/run_pbsv.sh {input.bam} {input.bai} {input.genome} {params.pbsv_from} {params.pbsv_to} {params.pbsv_step} {params.min_sv_size} {threads} {params.outdir}"
+
 
 #Split to SV classes
 rule filter_insertions_and_deletions:

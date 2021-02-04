@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 class Bamstats(object):
     def __init__(self, bam):
         samfile = pysam.AlignmentFile(bam, "rb")
-        self.name = bam.rstrip('.bam')
+        self.name = ".".join(bam.split(".")[:-1])
         self.mapped = samfile.mapped
         self.unmapped = samfile.unmapped
         self.total = samfile.mapped + samfile.unmapped
