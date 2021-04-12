@@ -1,7 +1,7 @@
-localrules: bgzip, tabix, callset_eval_svim, callset_eval_svim_gtcomp, callset_eval, callset_eval_gtcomp, reformat_truvari_results, reformat_truvari_results_svim, cat_truvari_results_all, cat_truvari_results_full, cat_truvari_results_svim_parameters
+localrules: bgzip, tabix, callset_eval_svim, callset_eval, reformat_truvari_results, reformat_truvari_results_svim, cat_truvari_results_all, cat_truvari_results_full, cat_truvari_results_svim_parameters
 
 def get_vcf(wildcards):
-    return config["truth"][wildcards.vcf]
+    return config["truth"][wildcards.vcf.split(".")[0]]
 
 rule bgzip:
     input:
@@ -31,7 +31,8 @@ rule callset_eval_svim:
     output:
         summary="pipeline/SVIM_results/{aligner}/{data}/{parameters}/{minscore}/{vcf}/summary.txt"
     params:
-        out_dir="pipeline/SVIM_results/{aligner}/{data}/{parameters}/{minscore}/{vcf}"
+        out_dir="pipeline/SVIM_results/{aligner}/{data}/{parameters}/{minscore}/{vcf}",
+        vcf="{vcf}"
     threads: 1
     log:
         log="logs/truvari/truvari.svim.{data}.{aligner}.{parameters}.{minscore}.{vcf}.log"
@@ -40,24 +41,6 @@ rule callset_eval_svim:
     script:
         "../scripts/run_truvari.py"
 
-rule callset_eval_svim_gtcomp:
-    input:
-        genome = config["reference"],
-        truth_vcf = get_vcf,
-        truth_bed = config["truth"]["bed"],
-        calls = "pipeline/SVIM/{aligner}/{data}/{parameters}/min_{minscore}.indel.vcf.gz",
-        index = "pipeline/SVIM/{aligner}/{data}/{parameters}/min_{minscore}.indel.vcf.gz.tbi"
-    output:
-        summary="pipeline/SVIM_results/{aligner}/{data}/{parameters}/{minscore}/{vcf}.gt/summary.txt"
-    params:
-        out_dir="pipeline/SVIM_results/{aligner}/{data}/{parameters}/{minscore}/{vcf}.gt"
-    threads: 1
-    log:
-        log="logs/truvari/truvari.svim.{data}.{aligner}.{parameters}.{minscore}.{vcf}.gt.log"
-    conda:
-        "../envs/truvari.yaml"
-    script:
-        "../scripts/run_truvari_gtcomp.py"
 
 rule callset_eval:
     input:
@@ -69,7 +52,8 @@ rule callset_eval:
     output:
         summary="pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}/summary.txt"
     params:
-        out_dir="pipeline/{caller}_results/{aligner}/{data}/{minscore}/{vcf}"
+        out_dir="pipeline/{caller}_results/{aligner}/{data}/{minscore}/{vcf}",
+        vcf="{vcf}"
     threads: 1
     log:
         log="logs/truvari/truvari.{caller}.{data}.{aligner}.{minscore}.{vcf}.log"
@@ -78,24 +62,6 @@ rule callset_eval:
     script:
         "../scripts/run_truvari.py"
 
-rule callset_eval_gtcomp:
-    input:
-        genome = config["reference"],
-        truth_vcf = get_vcf,
-        truth_bed = config["truth"]["bed"],
-        calls = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz",
-        index = "pipeline/{caller}/{aligner}/{data}/min_{minscore}.indel.vcf.gz.tbi"
-    output:
-        summary="pipeline/{caller,Sniffles|pbsv}_results/{aligner}/{data}/{minscore}/{vcf}.gt/summary.txt"
-    params:
-        out_dir="pipeline/{caller}_results/{aligner}/{data}/{minscore}/{vcf}.gt"
-    threads: 1
-    log:
-        log="logs/truvari/truvari.{caller}.{data}.{aligner}.{minscore}.{vcf}.gt.log"
-    conda:
-        "../envs/truvari.yaml"
-    script:
-        "../scripts/run_truvari_gtcomp.py"
 
 rule reformat_truvari_results:
     input:
