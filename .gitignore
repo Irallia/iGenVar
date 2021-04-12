@@ -1,11 +1,4 @@
-.remote-sync.json
-config.yaml
-minimap2/*
-minimap2_pbsv/*
-ngmlr/*
-fastq/*
-logs/*
-reference/*
-confidence_calls/*
-Rplots.pdf
 .snakemake/*
+logs/*
+pipeline/*
+Rplots.pdf

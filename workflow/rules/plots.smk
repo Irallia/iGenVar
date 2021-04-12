@@ -136,19 +136,20 @@ rule run_svim_all_types:
         bam="pipeline/alignment_pooled/{data}.{aligner}.bam",
         bai="pipeline/alignment_pooled/{data}.{aligner}.bam.bai"
     output:
-        "pipeline/SVIM/{aligner}/{data}/{pmd,[0-9]+}_{dn,[0-9]+}_{cmd,[0-9\.]+}_all_types/variants.vcf"
+        "pipeline/SVIM/{aligner}/{data}/{pmd,[0-9]+}_{pdn,[0-9]+}_{edn,[0-9\.]+}_{cmd,[0-9\.]+}_all_types/variants.vcf"
     resources:
         mem_mb = 10000,
         time_min = 600,
         io_gb = 100
     params:
-        working_dir = "pipeline/SVIM/{aligner}/{data}/{pmd}_{dn}_{cmd}_all_types/",
+        working_dir = "pipeline/SVIM/{aligner}/{data}/{pmd}_{pdn}_{edn}_{cmd}_all_types/",
         min_sv_size = config["parameters"]["min_sv_size"]
     threads: 1
     shell:
-        "/home/heller_d/bin/anaconda3/envs/svim_new/bin/python /home/heller_d/bin/anaconda3/envs/svim_new/bin/svim alignment --sample {wildcards.data} \
+        "/home/heller_d/bin/anaconda3/envs/svim_test4/bin/python /home/heller_d/bin/anaconda3/envs/svim_test4/bin/svim alignment --sample {wildcards.data} \
          --partition_max_distance {wildcards.pmd} \
-         --distance_normalizer {wildcards.dn} \
+         --position_distance_normalizer {wildcards.pdn} \
+         --edit_distance_normalizer {wildcards.edn} \
          --cluster_max_distance {wildcards.cmd} \
          --min_sv_size {params.min_sv_size} \
          --segment_gap_tolerance 20 \
@@ -173,7 +174,7 @@ rule SV_length_plot_svim:
 
 rule merge_counts:
     input:
-        svim = "pipeline/SV-plots/{aligner}/{data}/SV-counts_SVIM_1000_900_0.3_7.txt",
+        svim = "pipeline/SV-plots/{aligner}/{data}/SV-counts_SVIM_1000_900_1.0_0.5_7.txt",
         sniffles = "pipeline/SV-plots/{aligner}/{data}/SV-counts_Sniffles_5.txt",
         pbsv = "pipeline/SV-plots/{aligner}/{data}/SV-counts_pbsv_5.txt",
     output:

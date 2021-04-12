@@ -1,23 +1,26 @@
 library(tidyverse)
+library(ggrepel)
 library(scales)
 
 args = commandArgs(trailingOnly=TRUE)
 
 res <- read_tsv(args[1], col_names = c("parameters", "caller", "mapper", "subsample", "vcf", "score", "metric", "value"))
 
-res %>%
-    filter(metric %in% c("recall", "precision")) %>%
-    pivot_wider(names_from=metric, values_from=value) %>%
-    filter(recall!=0 | precision!=0) %>%
-    mutate(precision = 100*precision, recall = 100*recall) %>%
-    ggplot(aes(recall, precision, color=parameters, pch=parameters)) +
-      geom_point(size=0.5) +
-      geom_path() +
-      facet_grid(subsample~vcf) +
-      labs(y = "Precision", x = "Recall", color = "Tool", pch = "Tool") +
-      lims(x=c(0,100), y=c(0,100)) +
-      theme_bw() +
-      theme(panel.spacing = unit(0.75, "lines")) +
-      theme(text = element_text(size=14), axis.text.x = element_text(size=9), axis.text.y = element_text(size=9))
+res2 <- res %>%
+  filter(metric %in% c("recall", "precision")) %>%
+  pivot_wider(names_from=metric, values_from=value) %>%
+  filter(recall!=0 | precision!=0) %>%
+  mutate(precision = 100*precision, recall = 100*recall, f1 = 2*precision*recall/(precision+recall)) %>%
+  group_by(parameters, caller, mapper, subsample, vcf) %>%
+  summarise(best_f1 = max(f1)) %>%
+  pivot_wider(names_from=vcf, values_from=best_f1) %>%
+  separate(parameters, into=c("pmd", "pdn", "edn", "cmd"), sep="_", remove=F)
+
+ggplot(res2, aes(giab, giab.gt, label=parameters, group=edn, color=edn)) +
+  geom_point(aes(size=cmd)) +
+  geom_label_repel() +
+  geom_path() +
+  facet_wrap(vars(subsample), ncol=1) +
+  coord_cartesian(xlim=c(90, 93.5), ylim=c(80, 90))
 
 ggsave(args[2], width=20, height=12)

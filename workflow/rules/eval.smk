@@ -84,9 +84,9 @@ rule reformat_truvari_results_svim:
 
 rule cat_truvari_results_all:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/1000_900_0.3/{minscore}/{vcf}/pr_rec.txt", 
+        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt", 
                           data = SUBSAMPLES, 
-                          minscore=[0] + list(range(1, 60, 2)), vcf=VCFS),
+                          minscore=[0] + SVIM_THRESHOLDS, vcf=VCFS),
         sniffles = expand("pipeline/Sniffles_results/{{aligner}}/{data}/{minscore}/{vcf}/pr_rec.txt", 
                           data = SUBSAMPLES, 
                           minscore=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])),
@@ -109,8 +109,8 @@ rule cat_truvari_results_all:
 
 rule cat_truvari_results_full:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/pooled/1000_900_0.3/{minscore}/{vcf}/pr_rec.txt", 
-                          minscore=[0] + list(range(1, 60, 2)), vcf=VCFS),
+        svim = expand("pipeline/SVIM_results/{{aligner}}/pooled/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt", 
+                          minscore=[0] + SVIM_THRESHOLDS, vcf=VCFS),
         sniffles = expand("pipeline/Sniffles_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt", 
                           minscore=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])),
                           vcf=VCFS),
@@ -131,12 +131,13 @@ rule cat_truvari_results_full:
 
 rule cat_truvari_results_svim_parameters:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/{pmd}_{dn}_{cmd}/{minscore}/{vcf}/pr_rec.txt", 
+        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/{pmd}_{pdn}_{edn}_{cmd}/{minscore}/{vcf}/pr_rec.txt", 
                           data = ["pooled", "pooled.subsampled.50"],
-                          pmd = [500, 1000, 5000],
-                          dn = [900],
-                          cmd = [0.2, 0.3, 0.4],
-                          minscore=[0] + list(range(1, 60, 2)),
+                          pmd = [1000],
+                          pdn = [900],
+                          edn = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0],
+                          cmd = [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5],
+                          minscore= SVIM_THRESHOLDS,
                           vcf=VCFS)
     output:
         all = "pipeline/eval/{aligner}/svim_parameter_results.txt"
@@ -147,4 +148,4 @@ rule cat_truvari_results_svim_parameters:
                 parameters = f.split("/")[4]
                 with open(f, 'r') as input_file:
                     for line in input_file:
-                        print("%s\t%s" % (parameters, line), file=output_file)
+                        print("%s\t%s" % (parameters, line.strip()), file=output_file)

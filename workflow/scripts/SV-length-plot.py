@@ -1,5 +1,6 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 import sys
+import os
 from cyvcf2 import VCF
 from collections import defaultdict
 from argparse import ArgumentParser
