@@ -12,7 +12,7 @@ rule pbmm2_index:
         io_gb = 100
     threads: 2
     conda:
-        "../../envs/pbmm2.yaml"
+        "../../../../envs/pbmm2.yaml"
     shell:
         "pbmm2 index --num-threads {threads} --preset {params.preset} \
         {input.genome} {output.index}"
@@ -33,7 +33,7 @@ rule run_alignments_pbmm2:
         sample = "{sample}",
         preset = config["parameters"]["pbmm_preset"]
     conda:
-        "../../envs/pbmm2.yaml"
+        "../../../../envs/pbmm2.yaml"
     shell:
         """
         pbmm2 align --preset {params.preset} -j {threads} \

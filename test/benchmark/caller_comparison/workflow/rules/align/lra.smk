@@ -13,7 +13,7 @@ rule lra_index:
         io_gb = 100
     threads: 1
     conda:
-        "../../envs/lra.yaml"
+        "../../../../envs/lra.yaml"
     shell:
         "lra index {params.preset} \
         {input.genome}"
@@ -35,7 +35,7 @@ rule run_alignments_lra:
     params:
         preset = config["parameters"]["lra_preset"]
     conda:
-        "../../envs/lra.yaml"
+        "../../../../envs/lra.yaml"
     shell:
         "lra align {params.preset} -p s -t 10 {input.genome} {input.fa} | \
         samtools sort -o {output.bam} -"

@@ -16,7 +16,7 @@ rule index_alignment:
     resources:
         io_gb = 100
     conda:
-        "../envs/samtools.yaml"
+        "../../../envs/samtools.yaml"
     shell:
         "samtools index {input}"
 
@@ -41,7 +41,7 @@ rule pool_samples:
     resources:
         io_gb = 100
     conda:
-        "../envs/samtools.yaml"
+        "../../../envs/samtools.yaml"
     shell:
         "samtools merge {output} {input}"
 
@@ -59,7 +59,7 @@ rule subsample_alignments_0:
         tmpdir = "1000",
         outdir = "pipeline/alignment_pooled/"
     conda:
-        "../envs/samtools.yaml"
+        "../../../envs/samtools.yaml"
     shell:
         "bash workflow/scripts/subsample.sh {input.bam} 30 90 30 {threads} {params.outdir}"
 
@@ -77,7 +77,7 @@ rule subsample_alignments_1:
         tmpdir = "1000",
         outdir = "pipeline/alignment_pooled/"
     conda:
-        "../envs/samtools.yaml"
+        "../../../envs/samtools.yaml"
     shell:
         "bash workflow/scripts/subsample.sh {input.bam} 10 90 30 {threads} {params.outdir}"
 
@@ -95,6 +95,6 @@ rule subsample_alignments_2:
         tmpdir = "1000",
         outdir = "pipeline/alignment_pooled/"
     conda:
-        "../envs/samtools.yaml"
+        "../../../envs/samtools.yaml"
     shell:
         "bash workflow/scripts/subsample.sh {input.bam} 20 90 30 {threads} {params.outdir}"

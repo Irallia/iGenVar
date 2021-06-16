@@ -70,7 +70,7 @@ rule run_pbsv1_all_types:
         io_gb = 100
     threads: 1
     conda:
-        "../envs/pbsv.yaml"
+        "../../../envs/pbsv.yaml"
     shell:
         """
         pbsv discover {input.bam} {output.svsig}
@@ -90,7 +90,7 @@ rule run_pbsv2_all_types:
         io_gb = 100
     threads: 1
     conda:
-        "../envs/pbsv.yaml"
+        "../../../envs/pbsv.yaml"
     shell:
         """
         pbsv call -j 1 \
@@ -112,7 +112,7 @@ rule SV_length_plot_pbsv:
     log:
         "logs/svplot/svlength_pbsv_{aligner}_{data}_{minimum}.log"
     conda:
-        "../envs/cyvcf2.yaml"
+        "../../../envs/cyvcf2.yaml"
     shell:
         "python workflow/scripts/SV-length-plot.py {input} --output {output.plot} --counts {output.counts} --filter 'hs37d5' --tool pbsv 2> {log}"
 
@@ -125,7 +125,7 @@ rule SV_length_plot_sniffles:
     log:
         "logs/svplot/svlength_Sniffles_{aligner}_{data}_{minimum}.log"
     conda:
-        "../envs/cyvcf2.yaml"
+        "../../../envs/cyvcf2.yaml"
     shell:
         "python workflow/scripts/SV-length-plot.py {input} --output {output.plot} --counts {output.counts} --filter 'hs37d5'  --tool Sniffles 2> {log}"
 
@@ -168,7 +168,7 @@ rule SV_length_plot_svim:
     log:
         "logs/svplot/svlength_SVIM_{aligner}_{data}_{parameters}_{minimum}.log"
     conda:
-        "../envs/cyvcf2.yaml"
+        "../../../envs/cyvcf2.yaml"
     shell:
         "python workflow/scripts/SV-length-plot.py {input} --min_score {wildcards.minimum} --output {output.plot} --counts {output.counts} --filter 'hs37d5'  --tool SVIM 2> {log}"
 

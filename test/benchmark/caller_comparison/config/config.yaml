@@ -1,13 +1,14 @@
 samples:
-    sampleA: /path/to/sampleA/fastq
-    sampleB: /path/to/sampleB/fastq
-    sampleC: /path/to/sampleC/fastq
+    # sampleA: /path/to/sampleA/fastq
+    # sampleB: /path/to/sampleB/fastq
+    # sampleC: /path/to/sampleC/fastq
+    bam_sample: /data/long_reads/HG002.Sequel.10kb.pbmm2.hs37d5.whatshap.haplotag.RTG.10x.trio_sorted.bam
 
 reference: /path/to/database/genome.fa.gz
 
 truth:
-    giab: /path/to/truth/vcf.vcf.gz
-    bed: /path/to/truth/regions.bed
+    giab: data/truth_set/HG002_SVs_Tier1_v0.6.vcf.gz
+    bed: data/truth_set/HG002_SVs_Tier1_v0.6.bed
 
 parameters:
     minimap_preset: asm20 #map-pb (CLR), asm20 (CCS)

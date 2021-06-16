@@ -16,7 +16,7 @@ rule run_alignments_minimap2:
         options = config["parameters"]["minimap_options"]
     threads: 10
     conda:
-        "../../envs/minimap2.yaml"
+        "../../../../envs/minimap2.yaml"
     shell:
         "minimap2 -ax {params.preset} {params.options} -t {threads} --MD -Y {input.genome} {input.fq} > {output}"
 
@@ -32,6 +32,6 @@ rule sort_minimap2_alignments:
         io_gb = 100
     threads: 10
     conda:
-        "../../envs/samtools.yaml"
+        "../../../../envs/samtools.yaml"
     shell:
         "samtools sort -@ {threads} -o {output} {input}"

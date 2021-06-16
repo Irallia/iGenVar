@@ -10,7 +10,7 @@ rule mosdepth_get:
     resources:
         io_gb = 100
     conda:
-        "../envs/mosdepth.yaml"
+        "../../../envs/mosdepth.yaml"
     params:
         windowsize = 500,
         workdir = "pipeline/mosdepth/{subsample}.{aligner}"

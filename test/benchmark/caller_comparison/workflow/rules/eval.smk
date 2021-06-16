@@ -37,7 +37,7 @@ rule callset_eval_svim:
     log:
         log="logs/truvari/truvari.svim.{data}.{aligner}.{parameters}.{minscore}.{vcf}.log"
     conda:
-        "../envs/truvari.yaml"
+        "../../../envs/truvari.yaml"
     script:
         "../scripts/run_truvari.py"
 
@@ -58,7 +58,7 @@ rule callset_eval:
     log:
         log="logs/truvari/truvari.{caller}.{data}.{aligner}.{minscore}.{vcf}.log"
     conda:
-        "../envs/truvari.yaml"
+        "../../../envs/truvari.yaml"
     script:
         "../scripts/run_truvari.py"
 
@@ -84,16 +84,16 @@ rule reformat_truvari_results_svim:
 
 rule cat_truvari_results_all:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt", 
-                          data = SUBSAMPLES, 
+        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt",
+                          data = SUBSAMPLES,
                           minscore=[0] + SVIM_THRESHOLDS, vcf=VCFS),
-        sniffles = expand("pipeline/Sniffles_results/{{aligner}}/{data}/{minscore}/{vcf}/pr_rec.txt", 
-                          data = SUBSAMPLES, 
+        sniffles = expand("pipeline/Sniffles_results/{{aligner}}/{data}/{minscore}/{vcf}/pr_rec.txt",
+                          data = SUBSAMPLES,
                           minscore=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])),
                           vcf=VCFS),
-        pbsv = expand("pipeline/pbsv_results/{{aligner}}/{data}/{minscore}/{vcf}/pr_rec.txt", 
-                          data = SUBSAMPLES, 
-                          minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])), 
+        pbsv = expand("pipeline/pbsv_results/{{aligner}}/{data}/{minscore}/{vcf}/pr_rec.txt",
+                          data = SUBSAMPLES,
+                          minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])),
                           vcf=VCFS)
     output:
         svim = temp("pipeline/eval/{aligner}/svim.all_results.txt"),
@@ -109,13 +109,13 @@ rule cat_truvari_results_all:
 
 rule cat_truvari_results_full:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/pooled/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt", 
+        svim = expand("pipeline/SVIM_results/{{aligner}}/pooled/1000_900_1.0_0.5/{minscore}/{vcf}/pr_rec.txt",
                           minscore=[0] + SVIM_THRESHOLDS, vcf=VCFS),
-        sniffles = expand("pipeline/Sniffles_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt", 
+        sniffles = expand("pipeline/Sniffles_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt",
                           minscore=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])),
                           vcf=VCFS),
-        pbsv = expand("pipeline/pbsv_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt", 
-                          minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])), 
+        pbsv = expand("pipeline/pbsv_results/{{aligner}}/pooled/{minscore}/{vcf}/pr_rec.txt",
+                          minscore=list(range(config["minimums"]["pbsv_from"], config["minimums"]["pbsv_to"]+1, config["minimums"]["pbsv_step"])),
                           vcf=VCFS)
     output:
         svim = temp("pipeline/eval/{aligner}/svim.full_results.txt"),
@@ -131,7 +131,7 @@ rule cat_truvari_results_full:
 
 rule cat_truvari_results_svim_parameters:
     input:
-        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/{pmd}_{pdn}_{edn}_{cmd}/{minscore}/{vcf}/pr_rec.txt", 
+        svim = expand("pipeline/SVIM_results/{{aligner}}/{data}/{pmd}_{pdn}_{edn}_{cmd}/{minscore}/{vcf}/pr_rec.txt",
                           data = ["pooled", "pooled.subsampled.50"],
                           pmd = [1000],
                           pdn = [900],

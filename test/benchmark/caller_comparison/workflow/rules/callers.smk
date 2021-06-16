@@ -49,7 +49,7 @@ rule run_sniffles:
         bam = "pipeline/alignment_pooled/{data}.{aligner}.bam",
         bai = "pipeline/alignment_pooled/{data}.{aligner}.bam.bai"
     output:
-        expand("pipeline/Sniffles/{{aligner}}/{{data}}/raw_{minsupport}.vcf", 
+        expand("pipeline/Sniffles/{{aligner}}/{{data}}/raw_{minsupport}.vcf",
                 minsupport=list(range(config["minimums"]["sniffles_from"], config["minimums"]["sniffles_to"]+1, config["minimums"]["sniffles_step"])))
     resources:
         mem_mb = 400000,
@@ -64,7 +64,7 @@ rule run_sniffles:
         outdir = "pipeline/Sniffles/{aligner}/{data}/"
     threads: 30
     conda:
-        "../envs/sniffles.yaml"
+        "../../../envs/sniffles.yaml"
     shell:
         "bash workflow/scripts/run_sniffles.sh {input.bam} {input.bai} {params.sniffles_from} {params.sniffles_to} {params.sniffles_step} {params.min_sv_size} {threads} {params.outdir}"
 
@@ -99,7 +99,7 @@ rule run_pbsv_pbmm2_or_lra:
         outdir = "pipeline/pbsv/{aligner}/{data}/"
     threads: 15
     conda:
-        "../envs/pbsv.yaml"
+        "../../../envs/pbsv.yaml"
     shell:
         "bash workflow/scripts/run_pbsv.sh {input.bam} {input.bai} {input.genome} {params.pbsv_from} {params.pbsv_to} {params.pbsv_step} {params.min_sv_size} {threads} {params.outdir}"
 
@@ -124,7 +124,7 @@ rule run_pbsv_minimap2_or_ngmlr:
         outdir = "pipeline/pbsv/{aligner}/{data}/"
     threads: 15
     conda:
-        "../envs/pbsv.yaml"
+        "../../../envs/pbsv.yaml"
     shell:
         "bash workflow/scripts/run_pbsv.sh {input.bam} {input.bai} {input.genome} {params.pbsv_from} {params.pbsv_to} {params.pbsv_step} {params.min_sv_size} {threads} {params.outdir}"
 
