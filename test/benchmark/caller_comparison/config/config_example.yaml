@@ -1,0 +1,29 @@
+samples:
+    sampleA: /path/to/sampleA/fastq
+    sampleB: /path/to/sampleB/fastq
+    sampleC: /path/to/sampleC/fastq
+
+reference: /path/to/database/genome.fa.gz
+
+truth:
+    giab: /path/to/truth/vcf.vcf.gz
+    bed: /path/to/truth/regions.bed
+
+parameters:
+    minimap_preset: asm20 #map-pb (CLR), asm20 (CCS)
+    minimap_options: "" #additional minimap2 options
+    ngmlr_preset: pacbio
+    pbmm_preset: CCS #SUBREAD (CLR), CCS (CCS)
+    survivor_distance: 500
+    min_sv_size: 40
+
+minimums:
+    sniffles_from: 1
+    sniffles_to: 60
+    sniffles_step: 2
+    svim_from: 1
+    svim_to: 100
+    svim_step: 2
+    pbsv_from: 10
+    pbsv_to: 91
+    pbsv_step: 10
